@@ -12,6 +12,9 @@
 # Local MCP config (template ships .mcp.json.example; copy to .mcp.json locally)
 .mcp.json
 
+# Internal marketing / pitch drafts — not for public repo
+marketing/
+
 # Node / LWC tooling
 node_modules/
 coverage/

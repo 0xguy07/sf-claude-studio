@@ -1,9 +1,9 @@
 <p align="center">
   <h1 align="center">sf-claude-studio</h1>
   <p align="center">
-    Turn a single Claude Code session into a full Salesforce delivery studio.
+    A Claude Code harness for Salesforce delivery work.
     <br />
-    14 agents. 23 skills. 7 hooks. 10 path-scoped rule sets. Best practices baked in.
+    14 agents. 28 skills. 7 hooks. 10 path-scoped rule sets. Best practices baked in.
     <br />
     Works with the Salesforce CLI; optional Salesforce DX MCP server integration.
   </p>
@@ -12,7 +12,7 @@
 <p align="center">
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="MIT License"></a>
   <a href=".claude/agents"><img src="https://img.shields.io/badge/agents-14-blueviolet" alt="14 Agents"></a>
-  <a href=".claude/skills"><img src="https://img.shields.io/badge/skills-23-green" alt="23 Skills"></a>
+  <a href=".claude/skills"><img src="https://img.shields.io/badge/skills-28-green" alt="28 Skills"></a>
   <a href=".claude/hooks"><img src="https://img.shields.io/badge/hooks-7-orange" alt="7 Hooks"></a>
   <a href=".claude/rules"><img src="https://img.shields.io/badge/rules-10-red" alt="10 Rules"></a>
   <a href="https://docs.anthropic.com/en/docs/claude-code"><img src="https://img.shields.io/badge/built%20for-Claude%20Code-f5f5f5?logo=anthropic" alt="Built for Claude Code"></a>
@@ -35,7 +35,7 @@ You still make every call. The studio asks the questions, holds the standard, an
 | Category   | Count | Description                                                                                          |
 |------------|------:|------------------------------------------------------------------------------------------------------|
 | **Agents** |    14 | Architects, leads, and surface specialists across Apex, LWC, Aura, VF, OmniStudio, integration, data, QA, DevOps, security |
-| **Skills** |    23 | Slash commands all prefixed `/sf-*`. See full catalog below.                                          |
+| **Skills** |    28 | Slash commands all prefixed `/sf-*`. See full catalog below.                                          |
 | **Hooks**  |     7 | Auto-validation: hardcoded IDs, SOQL/DML in loops, missing `with sharing`, `SeeAllData=true`, naming  |
 | **Rules**  |    10 | Path-scoped standards for Apex classes/triggers/tests, LWC, Aura, Visualforce, Flow, OmniStudio, sObjects, permission sets |
 | **Templates** | 10 | User story, solution design, ADR, trigger-handler, LWC skeleton, deployment plan, release notes, test plan, retro, runbook |
@@ -59,7 +59,10 @@ Future tiers (specialists like `flow-builder`, `soql-optimizer`, `apex-test-writ
 ## Slash commands
 
 **Onboarding & project**
-`/sf-init` `/sf-start` `/sf-help` `/sf-project-stage-detect`
+`/sf-init` `/sf-start` `/sf-help` `/sf-project-stage-detect` `/sf-doctor`
+
+**Session control**
+`/sf-status` `/sf-context` `/sf-think` `/sf-trace`
 
 **Build & reviews**
 `/sf-apex-review` `/sf-lwc-review` `/sf-flow-review` `/sf-code-review` `/sf-security-review` `/sf-governor-check` `/sf-soql-selectivity` `/sf-scan`
@@ -100,7 +103,23 @@ sf project generate --name my-sf-project --output-dir .
 claude
 ```
 
-Then run `/sf-start` — it asks where you are (greenfield, existing org, mid-sprint, brownfield) and routes you to the right next step.
+Then run `/sf-doctor` to confirm your setup is healthy, then `/sf-start` — it asks where you are (greenfield, existing org, mid-sprint, brownfield) and routes you to the right next step.
+
+## What's a "harness"?
+
+A Claude Code *harness* is the layer of context, tools, hooks, and skills wrapped around the LLM to make it useful for a specific job. Claude Code itself is a harness; this template is a harness within a harness — Salesforce-shaped instead of generic. Same architectural family as [donchitos/Claude-Code-Game-Studios](https://github.com/Donchitos/Claude-Code-Game-Studios) (game-dev harness) and [openclaw/openclaw](https://github.com/openclaw/openclaw) (personal-assistant harness), narrower scope.
+
+What that means concretely: drop one folder into any SFDX project, open Claude Code, and the session spins up with the agents, skills, and rules already in place. No daemon, no SaaS, no API keys.
+
+## Three injected docs
+
+When Claude Code opens a project that uses this template, it loads three companion files alongside `CLAUDE.md`:
+
+- **[`AGENTS.md`](AGENTS.md)** — agent registry, the three-tier hierarchy, delegation rules, the collaboration protocol every agent follows
+- **[`STANDARDS.md`](STANDARDS.md)** — coding standards, path-scoped rule index, what `validate-commit` enforces, citations
+- **[`TOOLS.md`](TOOLS.md)** — required and optional tools, `sf` CLI permission allowlist, MCP integration, denylist
+
+Splitting them keeps each one short enough to read in one sitting and makes it easy to override one without overriding the others.
 
 ## Optional: Salesforce DX MCP integration
 
