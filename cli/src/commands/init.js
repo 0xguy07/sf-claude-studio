@@ -1,0 +1,150 @@
+import { existsSync, readFileSync, writeFileSync } from 'node:fs';
+import { join, basename } from 'node:path';
+import { confirm, input, select } from '@inquirer/prompts';
+import { bold, cyan, dim, green, yellow } from 'kolorist';
+import {
+  TEMPLATES_DIR,
+  TEMPLATE_FILES,
+  projectRoot,
+  studioRoot,
+  manifestPath,
+  templatesAvailable,
+} from '../lib/paths.js';
+import {
+  copyTree,
+  ensureDir,
+  listFilesRecursive,
+  makeExecutable,
+} from '../lib/fs-utils.js';
+import { buildManifest } from '../lib/manifest.js';
+import { heading, ok, warn, fail, info, blank } from '../lib/log.js';
+
+const MCP_PRESETS = {
+  'apex-dev':     'orgs,data,metadata,testing,other',
+  'lwc-dev':      'orgs,data,metadata,testing,lwc-experts,other',
+  'aura-migrate': 'orgs,metadata,aura-experts,lwc-experts,other',
+  'mobile-dev':   'orgs,data,metadata,testing,lwc-experts,mobile,other',
+  'data-admin':   'orgs,data,users,metadata',
+};
+
+export async function initCommand(target, opts) {
+  if (!templatesAvailable()) {
+    throw new Error(
+      'Bundled templates not found at ' + TEMPLATES_DIR + '. ' +
+      'If you are running from a source checkout, run `npm run build:templates` first.'
+    );
+  }
+
+  const projectDir = projectRoot(target);
+  const projectName = basename(projectDir);
+  const studioDir = studioRoot(target);
+
+  heading(`sfcs init  →  ${projectDir}`);
+
+  // Detect existing scaffolding
+  const studioExists = existsSync(studioDir);
+  if (studioExists && !opts.force) {
+    if (opts.yes) {
+      throw new Error(`.claude/ already exists at ${studioDir}. Use --force to overwrite, or run \`sfcs upgrade\`.`);
+    }
+    const proceed = await confirm({
+      message: `${yellow('.claude/ already exists.')} Overwrite? (Use ${bold('sfcs upgrade')} to merge instead.)`,
+      default: false,
+    });
+    if (!proceed) {
+      info('Aborted. Run `sfcs upgrade` to merge the latest template into your existing project.');
+      return;
+    }
+  }
+
+  // Resolve options
+  const orgAlias = opts.yes
+    ? ''
+    : await input({
+        message: `Default ${cyan('sf')} target-org alias for this project? ${dim('(blank to skip)')}`,
+        default: '',
+      });
+
+  let mcpPreset = opts.mcp ?? null;
+  if (!opts.yes && mcpPreset === undefined) {
+    const enableMcp = await confirm({
+      message: 'Enable optional Salesforce DX MCP integration?',
+      default: false,
+    });
+    if (enableMcp) {
+      mcpPreset = await select({
+        message: 'Pick a toolset preset',
+        choices: Object.keys(MCP_PRESETS).map((p) => ({ name: p, value: p })),
+        default: 'apex-dev',
+      });
+    }
+  }
+
+  if (mcpPreset && !MCP_PRESETS[mcpPreset]) {
+    throw new Error(`Unknown MCP preset: ${mcpPreset}. Valid: ${Object.keys(MCP_PRESETS).join(', ')}`);
+  }
+
+  // Copy template files
+  ensureDir(projectDir);
+  for (const rel of TEMPLATE_FILES) {
+    const src = join(TEMPLATES_DIR, rel);
+    const dst = join(projectDir, rel);
+    if (!existsSync(src)) continue;
+    copyTree(src, dst);
+    ok(`copied  ${rel}`);
+  }
+
+  // Make hooks executable
+  const hooksDir = join(studioDir, 'hooks');
+  if (existsSync(hooksDir)) {
+    let n = 0;
+    for (const f of listFilesRecursive(hooksDir)) {
+      if (f.endsWith('.sh')) { makeExecutable(f); n++; }
+    }
+    ok(`chmod +x  ${n} hook script${n === 1 ? '' : 's'}`);
+  }
+
+  // Write .mcp.json from preset, if requested
+  if (mcpPreset) {
+    const mcp = {
+      mcpServers: {
+        'Salesforce DX': {
+          command: 'npx',
+          args: [
+            '-y', '@salesforce/mcp',
+            '--orgs', orgAlias ? orgAlias : 'DEFAULT_TARGET_ORG',
+            '--toolsets', MCP_PRESETS[mcpPreset],
+            '--allow-non-ga-tools',
+          ],
+        },
+      },
+    };
+    writeFileSync(join(projectDir, '.mcp.json'), JSON.stringify(mcp, null, 2) + '\n');
+    ok(`wrote  .mcp.json  (preset: ${mcpPreset})`);
+  }
+
+  // Build manifest for future upgrades
+  const tplVer = readTemplateVersion();
+  const manifest = buildManifest({ projectDir, templateVersion: tplVer });
+  writeFileSync(manifestPath(projectDir), JSON.stringify(manifest, null, 2) + '\n');
+  ok(`wrote  .studio-manifest.json  (template ${tplVer}, ${Object.keys(manifest.files).length} files tracked)`);
+
+  blank();
+  console.log(`${green('Done.')} Next steps:`);
+  console.log(`  ${dim('1.')} ${cyan('cd')} ${projectDir === process.cwd() ? '.' : target}`);
+  console.log(`  ${dim('2.')} ${cyan('sfcs doctor')}        ${dim('# verify the setup')}`);
+  console.log(`  ${dim('3.')} ${cyan('claude')}             ${dim('# open Claude Code')}`);
+  console.log(`  ${dim('4.')} type  ${cyan('/sf-start')}    ${dim('# pick the right entry point')}`);
+  blank();
+}
+
+function readTemplateVersion() {
+  // Embed the CLI's package.json version as the template version stamp.
+  try {
+    const pkgPath = new URL('../../package.json', import.meta.url);
+    const pkg = JSON.parse(readFileSync(pkgPath, 'utf8'));
+    return pkg.version;
+  } catch {
+    return 'unknown';
+  }
+}

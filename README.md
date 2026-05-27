@@ -92,18 +92,40 @@ All hooks fail gracefully if optional tools are missing — nothing breaks, you 
 
 ### Setup
 
+**Option A — `sfcs` CLI** (recommended):
+
 ```bash
-# Use as a template for a new SF project
+npm install -g sf-claude-studio
+sfcs onboard my-project        # interactive wizard: init + doctor
+# or:
+sfcs init my-project --yes     # non-interactive
+```
+
+The CLI ships with the bundled template, runs `chmod +x` on the hooks, writes a `.studio-manifest.json` for future upgrades, and (optionally) prompts for an MCP preset.
+
+**Option B — clone-and-go** (no Node required):
+
+```bash
 git clone https://github.com/0xguy07/sf-claude-studio.git my-sf-project
 cd my-sf-project
 rm -rf .git && git init   # detach from this template
 sf project generate --name my-sf-project --output-dir .
-
-# Open Claude Code
-claude
+claude                    # open Claude Code
 ```
 
-Then run `/sf-doctor` to confirm your setup is healthy, then `/sf-start` — it asks where you are (greenfield, existing org, mid-sprint, brownfield) and routes you to the right next step.
+Either way, run `/sf-doctor` (or `sfcs doctor`) to confirm your setup is healthy, then `/sf-start` — it asks where you are (greenfield, existing org, mid-sprint, brownfield) and routes you to the right next step.
+
+### `sfcs` commands
+
+```
+sfcs init [target]      scaffold .claude/ + companions into a project
+sfcs onboard [target]   interactive first-run wizard (init + doctor)
+sfcs doctor             preflight health check
+sfcs upgrade            pull the latest .claude/ into an existing project
+sfcs sync               link skills from ~/.sf-claude-studio/skills/
+```
+
+`sfcs upgrade` does a three-way merge driven by `.studio-manifest.json`: unmodified files update silently, modified files prompt before overwriting, and `.claude/` is backed up to `.claude.bak.<ts>/` before any changes. See [`cli/README.md`](cli/README.md) for full options.
 
 ## What's a "harness"?
 
