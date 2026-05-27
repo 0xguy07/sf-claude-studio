@@ -1,0 +1,54 @@
+# Salesforce Code Analyzer v5 configuration
+# https://developer.salesforce.com/docs/platform/salesforce-code-analyzer/guide/code-analyzer.html
+#
+# Engines covered: PMD (Apex/VF), ESLint (JS/LWC/Aura), RetireJS, Regex,
+# Flow Scanner (Python 3.10+ required), Salesforce Graph Engine (SFGE).
+#
+# Severity levels: 1=Critical, 2=High, 3=Moderate, 4=Low, 5=Info.
+# CI threshold of 3 fails on Moderate+. Adjust to taste.
+
+config_root: '.'
+
+engines:
+  pmd:
+    disable_engine: false
+    rule_selectors:
+      - "Recommended"
+      - "Security"
+      - "Performance"
+      - "AppExchange"
+
+  eslint:
+    disable_engine: false
+
+  retire-js:
+    disable_engine: false
+
+  regex:
+    disable_engine: false
+    custom_rules:
+      hardcoded_sf_id:
+        regex: "['\"][0-9a-zA-Z]{15}(['\"]|[0-9a-zA-Z]{3}['\"])"
+        file_extensions: [".cls", ".trigger", ".js"]
+        description: "Hardcoded Salesforce record Id literal — use Custom Metadata or runtime lookup."
+        severity: 2
+
+  flow:
+    disable_engine: false
+
+  sfge:
+    disable_engine: false
+
+# Rule overrides — bump severity, suppress, or change category
+rules:
+  # Make 'OperationWithLimitsInLoop' a hard fail
+  pmd.apex.OperationWithLimitsInLoop:
+    severity: 1
+
+  # Make hardcoded ids critical
+  regex.hardcoded_sf_id:
+    severity: 1
+
+  # Test classes get some leeway on naming
+  pmd.apex.MethodNamingConventions:
+    severity: 4

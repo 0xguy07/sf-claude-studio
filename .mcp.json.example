@@ -1,0 +1,32 @@
+{
+  "_comment": [
+    "Salesforce DX MCP Server config for sf-claude-studio.",
+    "Copy this file to `.mcp.json` and adjust `--orgs` and `--toolsets` per project.",
+    "Use a persona-scoped preset rather than `--toolsets all` to keep context lean.",
+    "",
+    "Org allowlist values:",
+    "  DEFAULT_TARGET_ORG       — default org from sfdx-project (recommended)",
+    "  DEFAULT_TARGET_DEV_HUB   — default Dev Hub",
+    "  ALLOW_ALL_ORGS           — every authorized org (footgun if prod is authed)",
+    "  <alias> or <username>    — explicit, comma-separated",
+    "",
+    "Toolset presets (see .claude/docs/mcp-presets.md):",
+    "  apex-dev:     orgs,data,metadata,testing,other",
+    "  lwc-dev:      orgs,data,metadata,testing,lwc-experts,other",
+    "  aura-migrate: orgs,metadata,aura-experts,lwc-experts,other",
+    "  mobile-dev:   orgs,data,metadata,testing,lwc-experts,mobile,other",
+    "  data-admin:   orgs,data,users,metadata"
+  ],
+  "mcpServers": {
+    "Salesforce DX": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@salesforce/mcp",
+        "--orgs", "DEFAULT_TARGET_ORG",
+        "--toolsets", "orgs,data,metadata,testing,other",
+        "--allow-non-ga-tools"
+      ]
+    }
+  }
+}

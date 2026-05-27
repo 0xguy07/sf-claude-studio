@@ -1,0 +1,42 @@
+// Template: TriggerHandler skeleton
+// Replace {{Object}} with the SObject API name (e.g., Account, Volunteer__c).
+// Use one trigger per SObject (rules/apex-triggers.md).
+
+public with sharing class {{Object}}TriggerHandler {
+
+    private static Boolean isReentrant = false;
+
+    public void run() {
+        if (isReentrant) { return; }
+        isReentrant = true;
+        try {
+            if (Trigger.isBefore && Trigger.isInsert) { beforeInsert(); }
+            else if (Trigger.isBefore && Trigger.isUpdate) { beforeUpdate(); }
+            else if (Trigger.isBefore && Trigger.isDelete) { beforeDelete(); }
+            else if (Trigger.isAfter  && Trigger.isInsert) { afterInsert();  }
+            else if (Trigger.isAfter  && Trigger.isUpdate) { afterUpdate();  }
+            else if (Trigger.isAfter  && Trigger.isDelete) { afterDelete();  }
+            else if (Trigger.isAfter  && Trigger.isUndelete) { afterUndelete(); }
+        } finally {
+            isReentrant = false;
+        }
+    }
+
+    private void beforeInsert() {
+        // Delegate to a service class. NO business logic here.
+        // {{Object}}Service.validate((List<{{Object}}>) Trigger.new);
+    }
+
+    private void beforeUpdate() {
+        // {{Object}}Service.validate(
+        //     (List<{{Object}}>) Trigger.new,
+        //     (Map<Id, {{Object}}>) Trigger.oldMap
+        // );
+    }
+
+    private void beforeDelete() { /* {{Object}}Service.preDelete((List<{{Object}}>) Trigger.old); */ }
+    private void afterInsert()  { /* {{Object}}Service.afterInsert((List<{{Object}}>) Trigger.new); */ }
+    private void afterUpdate()  { /* {{Object}}Service.afterUpdate(...); */ }
+    private void afterDelete()  { /* {{Object}}Service.afterDelete(...); */ }
+    private void afterUndelete(){ /* {{Object}}Service.afterUndelete(...); */ }
+}

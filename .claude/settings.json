@@ -1,0 +1,86 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-settings.json",
+  "statusLine": {
+    "type": "command",
+    "command": "bash .claude/statusline.sh"
+  },
+  "permissions": {
+    "allow": [
+      "Bash(git status*)",
+      "Bash(git diff*)",
+      "Bash(git log*)",
+      "Bash(git branch*)",
+      "Bash(git rev-parse*)",
+      "Bash(ls *)",
+      "Bash(sf org display*)",
+      "Bash(sf org list*)",
+      "Bash(sf org open*)",
+      "Bash(sf project deploy validate*)",
+      "Bash(sf project deploy preview*)",
+      "Bash(sf project deploy report*)",
+      "Bash(sf data query*)",
+      "Bash(sf apex run*)",
+      "Bash(sf apex get log*)",
+      "Bash(sf apex list log*)",
+      "Bash(sf apex run test*)",
+      "Bash(sf scanner*)",
+      "Bash(sf code-analyzer*)",
+      "Bash(npm test*)",
+      "Bash(npm run test*)",
+      "Bash(npm run lint*)",
+      "Bash(python -m json.tool*)"
+    ],
+    "deny": [
+      "Bash(rm -rf *)",
+      "Bash(git push --force*)",
+      "Bash(git push -f *)",
+      "Bash(git reset --hard*)",
+      "Bash(git clean -f*)",
+      "Bash(sudo *)",
+      "Bash(chmod 777*)",
+      "Bash(sf project deploy start*--target-org*production*)",
+      "Bash(sf org delete*)",
+      "Bash(sf org logout*)",
+      "Bash(*>.env*)",
+      "Bash(cat *.env*)",
+      "Read(**/.env*)"
+    ]
+  },
+  "hooks": {
+    "SessionStart": [
+      {
+        "matcher": "",
+        "hooks": [
+          { "type": "command", "command": "bash .claude/hooks/session-start.sh", "timeout": 10 },
+          { "type": "command", "command": "bash .claude/hooks/detect-gaps.sh", "timeout": 10 }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          { "type": "command", "command": "bash .claude/hooks/validate-commit.sh", "timeout": 15 },
+          { "type": "command", "command": "bash .claude/hooks/validate-push.sh", "timeout": 10 },
+          { "type": "command", "command": "bash .claude/hooks/validate-deploy.sh", "timeout": 10 }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          { "type": "command", "command": "bash .claude/hooks/validate-metadata.sh", "timeout": 10 }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "matcher": "",
+        "hooks": [
+          { "type": "command", "command": "bash .claude/hooks/session-stop.sh", "timeout": 10 }
+        ]
+      }
+    ]
+  }
+}

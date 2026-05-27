@@ -1,0 +1,28 @@
+# Claude Code session state (per-developer, not shared)
+.claude/agent-memory/
+.claude/sessions/
+.claude/active.md
+
+# Salesforce DX
+.sfdx/
+.sf/
+.localdevserver/
+*.log
+
+# Local MCP config (template ships .mcp.json.example; copy to .mcp.json locally)
+.mcp.json
+
+# Node / LWC tooling
+node_modules/
+coverage/
+.nyc_output/
+npm-debug.log*
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Editors
+.vscode/
+.idea/
+*.swp
