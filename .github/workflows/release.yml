@@ -53,12 +53,15 @@ jobs:
       - name: Pack tarball
         working-directory: cli
         run: |
+          # npm pack creates sf-claude-studio-<version>.tgz which already matches
+          # our expected tarball name; no rename needed.
           npm pack
-          ls -la *.tgz
-          # npm pack names files differently than we want — rename to predictable form
-          orig=$(ls sf-claude-studio-*.tgz | head -1)
-          mv "$orig" "${{ steps.meta.outputs.tarball }}"
-          ls -la "${{ steps.meta.outputs.tarball }}"
+          ls -la sf-claude-studio-*.tgz
+          test -f "${{ steps.meta.outputs.tarball }}" || {
+            echo "::error::Expected ${{ steps.meta.outputs.tarball }} but npm pack produced something else"
+            ls -la *.tgz
+            exit 1
+          }
 
       - name: Compute SHA256
         id: sha
