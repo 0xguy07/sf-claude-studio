@@ -92,16 +92,17 @@ All hooks fail gracefully if optional tools are missing — nothing breaks, you 
 
 ### Setup
 
-**Option A — `sfcs` CLI** (recommended):
+**Option A — `sfcs` CLI via Homebrew** (recommended):
 
 ```bash
-npm install -g sf-claude-studio
+brew tap 0xguy07/tap
+brew install sfcs
 sfcs onboard my-project        # interactive wizard: init + doctor
 # or:
 sfcs init my-project --yes     # non-interactive
 ```
 
-The CLI ships with the bundled template, runs `chmod +x` on the hooks, writes a `.studio-manifest.json` for future upgrades, and (optionally) prompts for an MCP preset.
+The formula installs Node + the CLI, runs `chmod +x` on the hooks, writes a `.studio-manifest.json` for future upgrades, and (optionally) prompts for an MCP preset.
 
 **Option B — clone-and-go** (no Node required):
 

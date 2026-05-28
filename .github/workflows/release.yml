@@ -1,0 +1,152 @@
+name: Release
+
+# Triggers on any tag matching v*  e.g.  v0.4.0
+# Builds a tarball of cli/ (with bundled templates), creates a GitHub Release,
+# attaches the tarball, and bumps the Homebrew formula in 0xguy07/homebrew-tap.
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write   # required to create the GitHub Release
+
+jobs:
+  release:
+    name: Build + release
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.meta.outputs.version }}
+      tarball: ${{ steps.meta.outputs.tarball }}
+      sha256: ${{ steps.sha.outputs.sha256 }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Resolve version + tarball name
+        id: meta
+        run: |
+          set -euo pipefail
+          tag="${GITHUB_REF_NAME#v}"
+          pkg=$(node -p "require('./cli/package.json').version")
+          if [ "$tag" != "$pkg" ]; then
+            echo "::error::Tag ${GITHUB_REF_NAME} does not match cli/package.json version ${pkg}"
+            exit 1
+          fi
+          echo "version=$tag" >> "$GITHUB_OUTPUT"
+          echo "tarball=sf-claude-studio-$tag.tgz" >> "$GITHUB_OUTPUT"
+
+      - name: Install CLI deps
+        working-directory: cli
+        run: npm install --no-audit --no-fund
+
+      - name: Build bundled templates
+        working-directory: cli
+        run: npm run build:templates
+
+      - name: Pack tarball
+        working-directory: cli
+        run: |
+          npm pack
+          ls -la *.tgz
+          # npm pack names files differently than we want — rename to predictable form
+          orig=$(ls sf-claude-studio-*.tgz | head -1)
+          mv "$orig" "${{ steps.meta.outputs.tarball }}"
+          ls -la "${{ steps.meta.outputs.tarball }}"
+
+      - name: Compute SHA256
+        id: sha
+        working-directory: cli
+        run: |
+          sha=$(sha256sum "${{ steps.meta.outputs.tarball }}" | awk '{print $1}')
+          echo "sha256=$sha" >> "$GITHUB_OUTPUT"
+          echo "SHA256: $sha"
+
+      - name: Create GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "${{ github.ref_name }}" \
+            --title "${{ github.ref_name }}" \
+            --generate-notes \
+            "cli/${{ steps.meta.outputs.tarball }}#sf-claude-studio-${{ steps.meta.outputs.version }}.tgz"
+
+      - name: Annotate run
+        run: |
+          {
+            echo "## Released ${{ github.ref_name }}"
+            echo ""
+            echo "- Tarball: \`${{ steps.meta.outputs.tarball }}\`"
+            echo "- SHA256:  \`${{ steps.sha.outputs.sha256 }}\`"
+            echo "- URL:     https://github.com/${{ github.repository }}/releases/download/${{ github.ref_name }}/${{ steps.meta.outputs.tarball }}"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+  bump-formula:
+    name: Bump Homebrew formula
+    needs: release
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout tap repo
+        uses: actions/checkout@v4
+        with:
+          repository: 0xguy07/homebrew-tap
+          token: ${{ secrets.TAP_REPO_TOKEN }}
+          path: homebrew-tap
+
+      - name: Update formula
+        env:
+          VERSION: ${{ needs.release.outputs.version }}
+          SHA256:  ${{ needs.release.outputs.sha256 }}
+          TARBALL: ${{ needs.release.outputs.tarball }}
+        run: |
+          set -euo pipefail
+          mkdir -p homebrew-tap/Formula
+          cat > homebrew-tap/Formula/sfcs.rb <<EOF
+          # typed: false
+          # frozen_string_literal: true
+
+          # This file is auto-bumped by .github/workflows/release.yml in 0xguy07/sf-claude-studio.
+          # Do not hand-edit; your changes will be overwritten on the next release.
+          class Sfcs < Formula
+            desc "A Claude Code harness for Salesforce delivery work — agents, skills, hooks, rules"
+            homepage "https://github.com/0xguy07/sf-claude-studio"
+            url "https://github.com/0xguy07/sf-claude-studio/releases/download/v${VERSION}/${TARBALL}"
+            sha256 "${SHA256}"
+            license "MIT"
+            version "${VERSION}"
+
+            depends_on "node"
+
+            def install
+              system "npm", "install", *std_npm_args
+              bin.install_symlink libexec.glob("bin/*")
+            end
+
+            test do
+              assert_match(/[0-9]+\.[0-9]+\.[0-9]+/, shell_output("#{bin}/sfcs --version"))
+            end
+          end
+          EOF
+          echo "--- generated formula ---"
+          cat homebrew-tap/Formula/sfcs.rb
+
+      - name: Commit + push to tap
+        working-directory: homebrew-tap
+        env:
+          VERSION: ${{ needs.release.outputs.version }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add Formula/sfcs.rb
+          if git diff --cached --quiet; then
+            echo "No formula changes to commit"
+            exit 0
+          fi
+          git commit -m "sfcs ${VERSION}"
+          git push
