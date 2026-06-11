@@ -19,6 +19,7 @@
       "Bash(sf project deploy preview*)",
       "Bash(sf project deploy report*)",
       "Bash(sf data query*)",
+      "Bash(sf sobject describe*)",
       "Bash(sf apex run*)",
       "Bash(sf apex get log*)",
       "Bash(sf apex list log*)",
