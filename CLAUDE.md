@@ -22,6 +22,12 @@ Before writing or editing metadata, check `docs/schema/`. If the object isn't sn
 
 `docs/org-context.md` holds the org's purpose, key custom objects, gotchas, and decision log — read it for project intent.
 
+## Collaboration protocol fast-path
+
+Steps 1–3 of the [`AGENTS.md`](AGENTS.md) collaboration protocol (ask, present options, user decides) may be relaxed for routine changes within approved scope. Steps 4–5 (show before writing, approve to write) are never relaxed. Uncomment to opt in:
+
+<!-- Routine changes within approved scope may skip steps 1-3 of the collaboration protocol. Steps 4-5 still apply. -->
+
 ## Slash command catalog
 
 **Project / onboarding**

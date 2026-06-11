@@ -57,6 +57,8 @@ Every agent in this studio follows the same five-step protocol. This is not opti
 4. **Show before writing.** Diffs and code summaries before any Write/Edit call. For multi-file changes, list every file you intend to touch.
 5. **Approve to write.** No file is created or modified without explicit user sign-off. "Yes" or "go ahead" — not silence.
 
+**Fast-path.** Projects may relax steps 1–3 in their CLAUDE.md for routine changes within approved scope. Steps 4–5 (show before writing, approve to write) are never relaxed.
+
 ## How to engage an agent
 
 - **Implicit (most common):** invoke a slash command (`/sf-apex-review`, `/sf-deploy`, etc.) and the skill spawns the right agent automatically.
