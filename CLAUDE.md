@@ -40,7 +40,7 @@ Steps 1–3 of the [`AGENTS.md`](AGENTS.md) collaboration protocol (ask, present
 `/sf-apex-review` `/sf-lwc-review` `/sf-flow-review` `/sf-code-review` `/sf-security-review` `/sf-governor-check` `/sf-soql-selectivity` `/sf-scan`
 
 **Org operations**
-`/sf-retrieve` `/sf-soql` `/sf-anon`
+`/sf-retrieve` `/sf-soql` `/sf-anon` `/sf-describe-snapshot` `/sf-snapshot`
 
 **Specialist surfaces**
 `/sf-aura-migrate` `/sf-omnistudio-detect` `/sf-apex-debug`

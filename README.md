@@ -3,7 +3,7 @@
   <p align="center">
     A Claude Code harness for Salesforce delivery work.
     <br />
-    14 agents. 28 skills. 7 hooks. 10 path-scoped rule sets. Best practices baked in.
+    16 agents. 30 skills. 7 hooks. 10 path-scoped rule sets. Best practices baked in.
     <br />
     Works with the Salesforce CLI; optional Salesforce DX MCP server integration.
   </p>
@@ -11,8 +11,8 @@
 
 <p align="center">
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="MIT License"></a>
-  <a href=".claude/agents"><img src="https://img.shields.io/badge/agents-14-blueviolet" alt="14 Agents"></a>
-  <a href=".claude/skills"><img src="https://img.shields.io/badge/skills-28-green" alt="28 Skills"></a>
+  <a href=".claude/agents"><img src="https://img.shields.io/badge/agents-16-blueviolet" alt="16 Agents"></a>
+  <a href=".claude/skills"><img src="https://img.shields.io/badge/skills-30-green" alt="30 Skills"></a>
   <a href=".claude/hooks"><img src="https://img.shields.io/badge/hooks-7-orange" alt="7 Hooks"></a>
   <a href=".claude/rules"><img src="https://img.shields.io/badge/rules-10-red" alt="10 Rules"></a>
   <a href="https://docs.anthropic.com/en/docs/claude-code"><img src="https://img.shields.io/badge/built%20for-Claude%20Code-f5f5f5?logo=anthropic" alt="Built for Claude Code"></a>
@@ -34,8 +34,8 @@ You still make every call. The studio asks the questions, holds the standard, an
 
 | Category   | Count | Description                                                                                          |
 |------------|------:|------------------------------------------------------------------------------------------------------|
-| **Agents** |    14 | Architects, leads, and surface specialists across Apex, LWC, Aura, VF, OmniStudio, integration, data, QA, DevOps, security |
-| **Skills** |    28 | Slash commands all prefixed `/sf-*`. See full catalog below.                                          |
+| **Agents** |    16 | Architects, leads, and surface specialists across Apex, LWC, Aura, VF, OmniStudio, Flow, Nonprofit Cloud, integration, data, QA, DevOps, security |
+| **Skills** |    30 | Slash commands all prefixed `/sf-*`. See full catalog below.                                          |
 | **Hooks**  |     7 | Auto-validation: hardcoded IDs, SOQL/DML in loops, missing `with sharing`, `SeeAllData=true`, naming  |
 | **Rules**  |    10 | Path-scoped standards for Apex classes/triggers/tests, LWC, Aura, Visualforce, Flow, OmniStudio, sObjects, permission sets |
 | **Templates** | 10 | User story, solution design, ADR, trigger-handler, LWC skeleton, deployment plan, release notes, test plan, retro, runbook |
@@ -52,9 +52,10 @@ Tier 2 — Department Leads (Sonnet)
 
 Surface specialists (Sonnet)
   aura-migrator   visualforce-maintainer    omnistudio-builder    apex-debugger
+  flow-builder    nonprofit-cloud
 ```
 
-Future tiers (specialists like `flow-builder`, `soql-optimizer`, `apex-test-writer`, `sandbox-manager`) and cloud specialists (`sales-cloud`, `service-cloud`, `experience-cloud`, `nonprofit-cloud`) ship in later releases.
+Future tiers (specialists like `soql-optimizer`, `apex-test-writer`, `sandbox-manager`) and cloud specialists (`sales-cloud`, `service-cloud`, `experience-cloud`, `marketing-cloud`) ship in later releases.
 
 ## Slash commands
 
@@ -68,7 +69,7 @@ Future tiers (specialists like `flow-builder`, `soql-optimizer`, `apex-test-writ
 `/sf-apex-review` `/sf-lwc-review` `/sf-flow-review` `/sf-code-review` `/sf-security-review` `/sf-governor-check` `/sf-soql-selectivity` `/sf-scan`
 
 **Org operations**
-`/sf-retrieve` `/sf-soql` `/sf-anon`
+`/sf-retrieve` `/sf-soql` `/sf-anon` `/sf-describe-snapshot` `/sf-snapshot`
 
 **Specialist surfaces**
 `/sf-aura-migrate` `/sf-omnistudio-detect` `/sf-apex-debug`
