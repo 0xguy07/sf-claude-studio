@@ -5,7 +5,7 @@ argument-hint: "[flow-file-or-glob, default = staged flow changes]"
 user-invocable: true
 allowed-tools: Read, Glob, Grep, Bash, AskUserQuestion
 model: sonnet
-agent: technical-architect
+agent: flow-builder
 ---
 
 ## Phase 1: Targets

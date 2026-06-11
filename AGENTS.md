@@ -30,13 +30,15 @@ The studio organizes specialists into three tiers, modeled on a real Salesforce 
 | `visualforce-maintainer` | Existing VF pages, controllers, components, email templates | VF maintenance, security review of legacy controllers, "should this migrate to LWC?" decisions |
 | `omnistudio-builder` | OmniScripts, FlexCards, IPs, DataRaptors, runtime detection | OmniStudio design, Standard vs Package runtime detection, DataPack version control |
 | `apex-debugger` | Production issue investigation | Log analysis, exception decoding, governor-limit forensics, "why is this slow" questions |
+| `flow-builder` | Record-triggered & screen flow design, fault paths, before/after-save choice, entry conditions, flow testing. Owns `rules/flows.md` | Flow design review, building a new automation, clicks-vs-Apex on the declarative side |
+| `nonprofit-cloud` | NPSP + Nonprofit Cloud (NPC): TDTM, rollups, program/case-management objects. Consults `data-lead` on schema | NPSP/NPC design & review, donation/rollup logic, changes touching package or NPC standard objects |
 
 ## Future tiers
 
 Not in v0.x. Planned for later releases:
 
-- **Specialists:** `flow-builder`, `soql-optimizer`, `apex-test-writer`, `sandbox-manager`, `package-developer`
-- **Cloud specialists:** `sales-cloud`, `service-cloud`, `experience-cloud`, `nonprofit-cloud`, `marketing-cloud`
+- **Specialists:** `soql-optimizer`, `apex-test-writer`, `sandbox-manager`, `package-developer`
+- **Cloud specialists:** `sales-cloud`, `service-cloud`, `experience-cloud`, `marketing-cloud`
 
 ## Delegation rules
 
