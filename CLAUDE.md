@@ -16,6 +16,12 @@ Run `/sf-doctor` to check that everything's wired up.
 Run `/sf-start` to pick the right entry point based on project state.
 Run `/sf-help` to see all skills.
 
+## Metadata discipline
+
+Before writing or editing metadata, check `docs/schema/`. If the object isn't snapshotted, run `/sf-describe-snapshot` for it first. Never write a field reference that isn't in the snapshot.
+
+`docs/org-context.md` holds the org's purpose, key custom objects, gotchas, and decision log — read it for project intent.
+
 ## Slash command catalog
 
 **Project / onboarding**

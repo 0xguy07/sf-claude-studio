@@ -148,6 +148,10 @@ export async function initCommand(target, opts) {
     ok(`wrote  .mcp.json  (preset: ${mcpPreset})`);
   }
 
+  // Scaffold project docs the studio expects but doesn't ship as templates:
+  // an org-context primer and an empty schema-snapshot directory.
+  scaffoldDocs(projectDir, projectName);
+
   // Build manifest for future upgrades
   const tplVer = readTemplateVersion();
   const manifest = buildManifest({ projectDir, templateVersion: tplVer });
@@ -172,6 +176,58 @@ function readTemplateVersion() {
   } catch {
     return 'unknown';
   }
+}
+
+// Scaffold docs/org-context.md (a primer the studio reads for project intent)
+// and an empty docs/schema/ directory (where /sf-describe-snapshot writes
+// per-object schema). Both are created only if absent — never clobbered.
+function scaffoldDocs(projectDir, projectName) {
+  const docsDir = join(projectDir, 'docs');
+  const schemaDir = join(docsDir, 'schema');
+  ensureDir(schemaDir);
+
+  const keep = join(schemaDir, '.gitkeep');
+  if (!existsSync(keep)) {
+    writeFileSync(keep, '');
+    ok('wrote  docs/schema/.gitkeep');
+  }
+
+  const ctx = join(docsDir, 'org-context.md');
+  if (existsSync(ctx)) {
+    warn('skipped  docs/org-context.md  (file already exists; preserving yours)');
+    return;
+  }
+
+  const body = `# ${projectName} — Org Context
+
+What an agent should know about this org before touching it. Keep this current.
+
+## Purpose
+
+What this org/project is for, who uses it, and what business it runs.
+
+## Key custom objects
+
+The objects that matter and how they relate. Run \`/sf-describe-snapshot\` to
+write field-level detail into \`docs/schema/<Object>.md\`.
+
+| Object | Purpose | Notes |
+|-|-|-|
+| | | |
+
+## Gotchas
+
+Non-obvious constraints, legacy quirks, "don't touch X" landmines, integrations
+that break in surprising ways.
+
+## Decision log
+
+Newest first. One line per decision: what was decided, when, why.
+
+- <YYYY-MM-DD> —
+`;
+  writeFileSync(ctx, body);
+  ok('wrote  docs/org-context.md');
 }
 
 // When the user already had a .gitignore, append the studio's required entries
