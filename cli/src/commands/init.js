@@ -84,14 +84,39 @@ export async function initCommand(target, opts) {
     throw new Error(`Unknown MCP preset: ${mcpPreset}. Valid: ${Object.keys(MCP_PRESETS).join(', ')}`);
   }
 
-  // Copy template files
+  // Copy template files. Each top-level file/dir is checked individually:
+  //   - .claude/ is gated by the --force flag we already handled above
+  //   - everything else: skip + warn if the user already has it (e.g. .gitignore)
   ensureDir(projectDir);
+  const skipped = [];
   for (const rel of TEMPLATE_FILES) {
     const src = join(TEMPLATES_DIR, rel);
     const dst = join(projectDir, rel);
     if (!existsSync(src)) continue;
+
+    if (rel === '.claude') {
+      // Already handled by the --force / studioExists logic above; if we're
+      // here, either it didn't exist or the user said "overwrite".
+      copyTree(src, dst);
+      ok(`copied   ${rel}`);
+      continue;
+    }
+
+    if (existsSync(dst)) {
+      skipped.push(rel);
+      warn(`skipped  ${rel}  (file already exists; preserving yours)`);
+      continue;
+    }
+
     copyTree(src, dst);
-    ok(`copied  ${rel}`);
+    ok(`copied   ${rel}`);
+  }
+
+  // If we skipped .gitignore, append our entries onto theirs so the
+  // studio's gitignore lines (.studio-manifest.json, .claude/sessions/, etc.)
+  // are still in effect.
+  if (skipped.includes('.gitignore')) {
+    mergeGitignore(projectDir);
   }
 
   // Make hooks executable
@@ -147,4 +172,38 @@ function readTemplateVersion() {
   } catch {
     return 'unknown';
   }
+}
+
+// When the user already had a .gitignore, append the studio's required entries
+// (idempotently) so per-developer state and per-project artifacts are still
+// excluded from version control.
+function mergeGitignore(projectDir) {
+  const userGitignore = join(projectDir, '.gitignore');
+  const ours = join(TEMPLATES_DIR, '.gitignore');
+  if (!existsSync(userGitignore) || !existsSync(ours)) return;
+
+  const existing = readFileSync(userGitignore, 'utf8');
+  const incoming = readFileSync(ours, 'utf8');
+
+  // Pull out every non-blank, non-comment line from our template gitignore;
+  // those are the patterns we care about preserving in the user's file.
+  const ourPatterns = incoming
+    .split('\n')
+    .map((l) => l.trim())
+    .filter((l) => l && !l.startsWith('#'));
+
+  // Which patterns are missing from theirs?
+  const existingLines = new Set(existing.split('\n').map((l) => l.trim()));
+  const missing = ourPatterns.filter((p) => !existingLines.has(p));
+  if (missing.length === 0) return;
+
+  const block = [
+    '',
+    '# Added by sfcs init (sf-claude-studio)',
+    ...missing,
+    '',
+  ].join('\n');
+
+  writeFileSync(userGitignore, existing.replace(/\n*$/, '\n') + block);
+  ok(`merged   .gitignore  (added ${missing.length} pattern${missing.length === 1 ? '' : 's'})`);
 }
