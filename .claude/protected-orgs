@@ -1,0 +1,8 @@
+# Protected orgs — one sf alias or username per line.
+# validate-deploy.sh issues a STOP-level warning when an `sf project deploy
+# start` targets any org listed here. Blank lines and #-comments are ignored.
+# Uncomment / add your production and other do-not-touch orgs:
+#
+# production
+# my-prod-alias
+# admin@acme.com.prod
