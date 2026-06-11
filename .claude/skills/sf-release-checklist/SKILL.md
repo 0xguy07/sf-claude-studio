@@ -12,6 +12,7 @@ agent: delivery-lead
 - [ ] All stories in scope have status = "Done."
 - [ ] No outstanding BLOCKING findings from `/sf-code-review`, `/sf-apex-review`, `/sf-lwc-review`, `/sf-security-review`.
 - [ ] CI is green on the release branch.
+- [ ] A current org snapshot exists (`/sf-snapshot`) — a pre-release record of target-org state to diff against and roll back toward.
 
 ## Phase 2: Test
 

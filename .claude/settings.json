@@ -18,6 +18,7 @@
       "Bash(sf project deploy validate*)",
       "Bash(sf project deploy preview*)",
       "Bash(sf project deploy report*)",
+      "Bash(sf project retrieve*)",
       "Bash(sf data query*)",
       "Bash(sf sobject describe*)",
       "Bash(sf apex run*)",
